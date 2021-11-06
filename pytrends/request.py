@@ -138,7 +138,7 @@ class TrendReq(object):
                 response = s.get(url, timeout=self.timeout, cookies=self.cookies,
                              **kwargs, **self.requests_args)   # DO NOT USE retries or backoff_factor here
             except Exception:
-                print("GET HERE")
+                print("GET HERE", url)
                 raise    
         # check if the response contains json and throw an exception otherwise
         # Google mostly sends 'application/json' in the Content-Type header,
