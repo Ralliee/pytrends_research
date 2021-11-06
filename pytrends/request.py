@@ -145,6 +145,7 @@ class TrendReq(object):
         # but occasionally it sends 'application/javascript
         # and sometimes even 'text/javascript
         try:
+            print(url)
             print(response)
             print(response.headers)
             if response.status_code == 200 and 'application/json' in \
