@@ -159,11 +159,10 @@ class TrendReq(object):
                     'response with code {0}.'.format(response.status_code),
                     response=response)
         except KeyError:
-            print(response)
-            print(response.headers)
-            import pdb
-            pdb.set_trace()
-            print("KeyError")
+            raise exceptions.ResponseError(
+                    'The request failed: Google returned a '
+                    'response with code {0}.'.format(response.status_code),
+                    response=response)
 
     def build_payload(self, kw_list, cat=0, timeframe='today 5-y', geo='',
                       gprop=''):
