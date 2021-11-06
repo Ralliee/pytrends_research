@@ -198,6 +198,7 @@ class TrendReq(object):
     def _tokens(self):
         """Makes request to Google to get API tokens for interest over time, interest by region and related queries"""
         # make the request and parse the returned json
+        print("Getting Token")
         try:
             widget_dict = self._get_data(
             url=TrendReq.GENERAL_URL,
@@ -205,7 +206,8 @@ class TrendReq(object):
             params=self.token_payload,
             trim_chars=4,
             )['widgets']
-        except Exception:
+        except Exception as e:
+            print(f"big error: {e}")
             raise
         # order of the json matters...
         first_region_token = True
