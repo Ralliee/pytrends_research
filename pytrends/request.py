@@ -159,7 +159,7 @@ class TrendReq(object):
                     'response with code {0}.'.format(response.status_code),
                     response=response)
         except KeyError:
-            raise exceptions.ResponseError(
+            raise KeyError(
                     'The request failed: Google returned a '
                     'response with code {0}.'.format(response.status_code),
                     response=response)
