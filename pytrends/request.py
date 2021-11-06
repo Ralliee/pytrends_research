@@ -140,23 +140,28 @@ class TrendReq(object):
         # Google mostly sends 'application/json' in the Content-Type header,
         # but occasionally it sends 'application/javascript
         # and sometimes even 'text/javascript
-        if response.status_code == 200 and 'application/json' in \
-                response.headers['Content-Type'] or \
-                'application/javascript' in response.headers['Content-Type'] or \
-                'text/javascript' in response.headers['Content-Type']:
-            # trim initial characters
-            # some responses start with garbage characters, like ")]}',"
-            # these have to be cleaned before being passed to the json parser
-            content = response.text[trim_chars:]
-            # parse json
-            self.GetNewProxy()
-            return json.loads(content)
-        else:
-            # error
-            raise exceptions.ResponseError(
-                'The request failed: Google returned a '
-                'response with code {0}.'.format(response.status_code),
-                response=response)
+        try:
+            if response.status_code == 200 and 'application/json' in \
+                    response.headers['Content-Type'] or \
+                    'application/javascript' in response.headers['Content-Type'] or \
+                    'text/javascript' in response.headers['Content-Type']:
+                # trim initial characters
+                # some responses start with garbage characters, like ")]}',"
+                # these have to be cleaned before being passed to the json parser
+                content = response.text[trim_chars:]
+                # parse json
+                self.GetNewProxy()
+                return json.loads(content)
+            else:
+                # error
+                raise exceptions.ResponseError(
+                    'The request failed: Google returned a '
+                    'response with code {0}.'.format(response.status_code),
+                    response=response)
+        except KeyError:
+            import pdb
+            pdb.set_trace()
+            print("KeyError")
 
     def build_payload(self, kw_list, cat=0, timeframe='today 5-y', geo='',
                       gprop=''):
