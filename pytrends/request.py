@@ -159,6 +159,8 @@ class TrendReq(object):
                     'response with code {0}.'.format(response.status_code),
                     response=response)
         except KeyError:
+            print(response)
+            print(response.headers)
             import pdb
             pdb.set_trace()
             print("KeyError")
