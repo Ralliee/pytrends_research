@@ -26,7 +26,7 @@ class TrendReq(object):
     """
     GET_METHOD = 'get'
     POST_METHOD = 'post'
-    GENERAL_URL = 'https://trends.google.com/trends/api/explore'
+    GENERAL_URL = 'https://trends.google.com/trends/explore'
     INTEREST_OVER_TIME_URL = 'https://trends.google.com/trends/api/widgetdata/multiline'
     INTEREST_BY_REGION_URL = 'https://trends.google.com/trends/api/widgetdata/comparedgeo'
     RELATED_QUERIES_URL = 'https://trends.google.com/trends/api/widgetdata/relatedsearches'
