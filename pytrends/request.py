@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import json
 import sys
 import time
+import random
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -26,7 +27,7 @@ class TrendReq(object):
     """
     GET_METHOD = 'get'
     POST_METHOD = 'post'
-    GENERAL_URL = 'https://trends.google.com/trends/explore'
+    GENERAL_URL = 'https://trends.google.com/trends/api/explore'
     INTEREST_OVER_TIME_URL = 'https://trends.google.com/trends/api/widgetdata/multiline'
     INTEREST_BY_REGION_URL = 'https://trends.google.com/trends/api/widgetdata/comparedgeo'
     RELATED_QUERIES_URL = 'https://trends.google.com/trends/api/widgetdata/relatedsearches'
@@ -99,7 +100,6 @@ class TrendReq(object):
         """
         Increment proxy INDEX; zero on overflow
         """
-        print("Getting Proxy")
         if self.proxy_index < (len(self.proxies) - 1):
             self.proxy_index += 1
         else:
@@ -125,29 +125,38 @@ class TrendReq(object):
         if len(self.proxies) > 0:
             self.cookies = self.GetGoogleCookie()
             s.proxies.update({'https': self.proxies[self.proxy_index]})
-        print("HERE")
+
         if method == TrendReq.POST_METHOD:
             try:
                 response = s.post(url, timeout=self.timeout,
-                              cookies=self.cookies, **kwargs, **self.requests_args)  # DO NOT USE retries or backoff_factor here
+                                  cookies=self.cookies, **kwargs, **self.requests_args)  # DO NOT USE retries or backoff_factor here
             except Exception:
                 print("POST HERE")
                 raise
         else:
             try:
+                user_agents = ['Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
+                               'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:94.0) Gecko/20100101 Firefox/94.0']
+                s.headers.update({
+                    'user-agent': random.choice(user_agents),
+                    'X-Crawlera-Profile': 'desktop',
+                    'X-Crawlera-Cookies': 'disable',
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'X-Crawlera-Profile-Pass': 'user-agent, accept-language, cookie',
+                })
+
                 response = s.get(url, timeout=self.timeout, cookies=self.cookies,
-                             **kwargs, **self.requests_args)   # DO NOT USE retries or backoff_factor here
+                                 **kwargs, **self.requests_args)   # DO NOT USE retries or backoff_factor here
             except Exception:
                 print("GET HERE", url)
-                raise    
+                raise
         # check if the response contains json and throw an exception otherwise
         # Google mostly sends 'application/json' in the Content-Type header,
         # but occasionally it sends 'application/javascript
         # and sometimes even 'text/javascript
         try:
-            print(url)
-            print(response)
-            print(response.headers)
+            # print(response.request.headers)
+            # print(response.headers)
             if response.status_code == 200 and 'application/json' in \
                     response.headers.get('Content-Type', []) or \
                     'application/javascript' in response.headers.get('Content-Type', []) or \
@@ -167,8 +176,8 @@ class TrendReq(object):
                     response=response)
         except KeyError:
             raise KeyError(
-                    'The request failed: Google returned a '
-                    'response with code {0}.'.format(response.status_code))
+                'The request failed: Google returned a '
+                'response with code {0}.'.format(response.status_code))
 
     def build_payload(self, kw_list, cat=0, timeframe='today 5-y', geo='',
                       gprop=''):
@@ -198,13 +207,12 @@ class TrendReq(object):
     def _tokens(self):
         """Makes request to Google to get API tokens for interest over time, interest by region and related queries"""
         # make the request and parse the returned json
-        print("Getting Token")
         try:
             widget_dict = self._get_data(
-            url=TrendReq.GENERAL_URL,
-            method=TrendReq.GET_METHOD,
-            params=self.token_payload,
-            trim_chars=4,
+                url=TrendReq.GENERAL_URL,
+                method=TrendReq.GET_METHOD,
+                params=self.token_payload,
+                trim_chars=4,
             )['widgets']
         except Exception as e:
             print(f"big error: {e}")
@@ -246,7 +254,7 @@ class TrendReq(object):
                 method=TrendReq.GET_METHOD,
                 trim_chars=5,
                 params=over_time_payload,
-                )
+            )
         except Exception:
             raise
 
